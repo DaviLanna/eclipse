@@ -1,7 +1,12 @@
-package com.example.rotinainteligente.model;
+package com.inkids.model;
 
 import java.time.LocalDateTime;
 
+/**
+ * Representa a entidade Postagem.
+ * Armazena o conteúdo de uma postagem, incluindo um título, o texto,
+ * o ID do autor e uma URL para uma imagem gerada por IA.
+ */
 public class Postagem {
     private int id;
     private String titulo;
@@ -11,9 +16,10 @@ public class Postagem {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Constructors
+    // Construtor padrão
     public Postagem() {}
 
+    // Construtor com parâmetros essenciais
     public Postagem(String titulo, String conteudo, int autorId, String imagemUrl) {
         this.titulo = titulo;
         this.conteudo = conteudo;
@@ -21,7 +27,8 @@ public class Postagem {
         this.imagemUrl = imagemUrl;
     }
 
-    // Getters and Setters
+    // --- Getters e Setters ---
+
     public int getId() {
         return id;
     }

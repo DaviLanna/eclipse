@@ -1,7 +1,11 @@
-package com.example.rotinainteligente.model;
+package com.inkids.model;
 
 import java.time.LocalDateTime;
 
+/**
+ * Representa a entidade Contato.
+ * Armazena uma mensagem enviada por um visitante através do formulário de contato.
+ */
 public class Contato {
     private int id;
     private String nome;
@@ -11,9 +15,10 @@ public class Contato {
     private String mensagem;
     private LocalDateTime createdAt;
 
-    // Constructors
+    // Construtor padrão
     public Contato() {}
 
+    // Construtor com parâmetros essenciais
     public Contato(String nome, String email, String telefone, String assunto, String mensagem) {
         this.nome = nome;
         this.email = email;
@@ -22,7 +27,8 @@ public class Contato {
         this.mensagem = mensagem;
     }
 
-    // Getters and Setters
+    // --- Getters e Setters ---
+
     public int getId() {
         return id;
     }

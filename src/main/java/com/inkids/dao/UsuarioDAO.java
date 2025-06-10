@@ -1,11 +1,16 @@
-package com.example.rotinainteligente.dao;
+package com.inkids.dao;
 
-import com.example.rotinainteligente.model.Usuario;
+import com.inkids.model.Usuario;
+
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DAO para a entidade Usuario.
+ * Contém os métodos para realizar operações CRUD na tabela de usuários.
+ */
 public class UsuarioDAO extends DAO {
 
     public UsuarioDAO() {
@@ -13,9 +18,9 @@ public class UsuarioDAO extends DAO {
     }
 
     /**
-     * Inserts a new user into the database.
-     * @param usuario The Usuario object to insert.
-     * @return The generated ID of the new user, or -1 if an error occurred.
+     * Insere um novo usuário no banco de dados.
+     * @param usuario O objeto Usuario a ser inserido.
+     * @return O ID gerado para o novo usuário, ou -1 em caso de erro.
      */
     public int insert(Usuario usuario) {
         String sql = "INSERT INTO Usuarios (nome, email, senha, data_nascimento, genero, telefone, tipo_usuario, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -24,7 +29,7 @@ public class UsuarioDAO extends DAO {
             try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 pstmt.setString(1, usuario.getNome());
                 pstmt.setString(2, usuario.getEmail());
-                pstmt.setString(3, usuario.getSenha()); // Remember to hash passwords
+                pstmt.setString(3, usuario.getSenha()); // Lembre-se de usar hash em produção
                 pstmt.setDate(4, usuario.getDataNascimento() != null ? Date.valueOf(usuario.getDataNascimento()) : null);
                 pstmt.setString(5, usuario.getGenero());
                 pstmt.setString(6, usuario.getTelefone());
@@ -34,9 +39,9 @@ public class UsuarioDAO extends DAO {
 
                 int affectedRows = pstmt.executeUpdate();
                 if (affectedRows > 0) {
-                    try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                        if (generatedKeys.next()) {
-                            generatedId = generatedKeys.getInt(1);
+                    try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                        if (rs.next()) {
+                            generatedId = rs.getInt(1);
                             usuario.setId(generatedId);
                         }
                     }
@@ -51,9 +56,9 @@ public class UsuarioDAO extends DAO {
     }
 
     /**
-     * Retrieves a user by their ID.
-     * @param id The ID of the user.
-     * @return The Usuario object, or null if not found or an error occurred.
+     * Busca um usuário pelo seu ID.
+     * @param id O ID do usuário.
+     * @return Um objeto Usuario, ou null se não for encontrado ou em caso de erro.
      */
     public Usuario get(int id) {
         String sql = "SELECT * FROM Usuarios WHERE id = ?";
@@ -61,20 +66,23 @@ public class UsuarioDAO extends DAO {
         if (conectar()) {
             try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
                 pstmt.setInt(1, id);
-                ResultSet rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    usuario = new Usuario();
-                    usuario.setId(rs.getInt("id"));
-                    usuario.setNome(rs.getString("nome"));
-                    usuario.setEmail(rs.getString("email"));
-                    usuario.setSenha(rs.getString("senha"));
-                    Date dataNasc = rs.getDate("data_nascimento");
-                    if (dataNasc != null) usuario.setDataNascimento(dataNasc.toLocalDate());
-                    usuario.setGenero(rs.getString("genero"));
-                    usuario.setTelefone(rs.getString("telefone"));
-                    usuario.setTipoUsuario(rs.getString("tipo_usuario"));
-                    usuario.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-                    usuario.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        usuario = new Usuario();
+                        usuario.setId(rs.getInt("id"));
+                        usuario.setNome(rs.getString("nome"));
+                        usuario.setEmail(rs.getString("email"));
+                        usuario.setSenha(rs.getString("senha"));
+                        Date dataNasc = rs.getDate("data_nascimento");
+                        if (dataNasc != null) {
+                            usuario.setDataNascimento(dataNasc.toLocalDate());
+                        }
+                        usuario.setGenero(rs.getString("genero"));
+                        usuario.setTelefone(rs.getString("telefone"));
+                        usuario.setTipoUsuario(rs.getString("tipo_usuario"));
+                        usuario.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                        usuario.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+                    }
                 }
             } catch (SQLException e) {
                 System.err.println("Erro ao buscar usuário: " + e.getMessage());
@@ -86,11 +94,11 @@ public class UsuarioDAO extends DAO {
     }
 
     /**
-     * Retrieves all users from the database.
-     * @return A list of Usuario objects.
+     * Lista todos os usuários do banco de dados.
+     * @return Uma lista de objetos Usuario.
      */
     public List<Usuario> getAll() {
-        String sql = "SELECT * FROM Usuarios";
+        String sql = "SELECT * FROM Usuarios ORDER BY nome";
         List<Usuario> usuarios = new ArrayList<>();
         if (conectar()) {
             try (Statement stmt = connection.createStatement();
@@ -100,9 +108,11 @@ public class UsuarioDAO extends DAO {
                     usuario.setId(rs.getInt("id"));
                     usuario.setNome(rs.getString("nome"));
                     usuario.setEmail(rs.getString("email"));
-                    // Do not load password for lists usually, or ensure it's handled securely
+                    // Não carregar a senha em listagens por segurança
                     Date dataNasc = rs.getDate("data_nascimento");
-                    if (dataNasc != null) usuario.setDataNascimento(dataNasc.toLocalDate());
+                    if (dataNasc != null) {
+                        usuario.setDataNascimento(dataNasc.toLocalDate());
+                    }
                     usuario.setGenero(rs.getString("genero"));
                     usuario.setTelefone(rs.getString("telefone"));
                     usuario.setTipoUsuario(rs.getString("tipo_usuario"));
@@ -120,9 +130,9 @@ public class UsuarioDAO extends DAO {
     }
 
     /**
-     * Updates an existing user in the database.
-     * @param usuario The Usuario object with updated information.
-     * @return true if successful, false otherwise.
+     * Atualiza um usuário existente no banco de dados.
+     * @param usuario O objeto Usuario com os dados atualizados.
+     * @return true se a atualização for bem-sucedida, false caso contrário.
      */
     public boolean update(Usuario usuario) {
         String sql = "UPDATE Usuarios SET nome = ?, email = ?, senha = ?, data_nascimento = ?, genero = ?, telefone = ?, tipo_usuario = ?, updated_at = ? WHERE id = ?";
@@ -131,13 +141,14 @@ public class UsuarioDAO extends DAO {
             try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
                 pstmt.setString(1, usuario.getNome());
                 pstmt.setString(2, usuario.getEmail());
-                pstmt.setString(3, usuario.getSenha()); // Remember to hash passwords
+                pstmt.setString(3, usuario.getSenha());
                 pstmt.setDate(4, usuario.getDataNascimento() != null ? Date.valueOf(usuario.getDataNascimento()) : null);
                 pstmt.setString(5, usuario.getGenero());
                 pstmt.setString(6, usuario.getTelefone());
                 pstmt.setString(7, usuario.getTipoUsuario());
                 pstmt.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
                 pstmt.setInt(9, usuario.getId());
+                
                 success = pstmt.executeUpdate() > 0;
             } catch (SQLException e) {
                 System.err.println("Erro ao atualizar usuário: " + e.getMessage());
@@ -149,9 +160,9 @@ public class UsuarioDAO extends DAO {
     }
 
     /**
-     * Deletes a user from the database by ID.
-     * @param id The ID of the user to delete.
-     * @return true if successful, false otherwise.
+     * Deleta um usuário do banco de dados pelo seu ID.
+     * @param id O ID do usuário a ser deletado.
+     * @return true se a deleção for bem-sucedida, false caso contrário.
      */
     public boolean delete(int id) {
         String sql = "DELETE FROM Usuarios WHERE id = ?";
@@ -168,28 +179,36 @@ public class UsuarioDAO extends DAO {
         }
         return success;
     }
-
-    // You might want to add a method to get user by email for login
+    
+    /**
+     * Busca um usuário pelo seu email, útil para login.
+     * @param email O email do usuário.
+     * @return Um objeto Usuario, ou null se não for encontrado.
+     */
     public Usuario getByEmail(String email) {
         String sql = "SELECT * FROM Usuarios WHERE email = ?";
         Usuario usuario = null;
         if (conectar()) {
             try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
                 pstmt.setString(1, email);
-                ResultSet rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    usuario = new Usuario();
-                    usuario.setId(rs.getInt("id"));
-                    usuario.setNome(rs.getString("nome"));
-                    usuario.setEmail(rs.getString("email"));
-                    usuario.setSenha(rs.getString("senha")); // Important for login
-                    Date dataNasc = rs.getDate("data_nascimento");
-                    if (dataNasc != null) usuario.setDataNascimento(dataNasc.toLocalDate());
-                    usuario.setGenero(rs.getString("genero"));
-                    usuario.setTelefone(rs.getString("telefone"));
-                    usuario.setTipoUsuario(rs.getString("tipo_usuario"));
-                    usuario.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-                    usuario.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        usuario = new Usuario();
+                        usuario.setId(rs.getInt("id"));
+                        usuario.setNome(rs.getString("nome"));
+                        usuario.setEmail(rs.getString("email"));
+                        usuario.setSenha(rs.getString("senha")); // Necessário para autenticação
+                        Date dataNasc = rs.getDate("data_nascimento");
+                        if (dataNasc != null) {
+                            usuario.setDataNascimento(dataNasc.toLocalDate());
+                        }
+                        usuario.setGenero(rs.getString("genero"));
+                        usuario.setTelefone(rs.getString("telefone"));
+                        usuario.setTipoUsuario(rs.getString("tipo_usuario"));
+                        usuario.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+
+                        usuario.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+                    }
                 }
             } catch (SQLException e) {
                 System.err.println("Erro ao buscar usuário por email: " + e.getMessage());

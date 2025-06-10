@@ -1,20 +1,25 @@
-package com.example.rotinainteligente.model;
+package com.inkids.model;
 
 import java.time.LocalDateTime;
 
+/**
+ * Representa a entidade Tarefa.
+ * Descreve uma atividade a ser realizada por um usuário, com status e prioridade.
+ */
 public class Tarefa {
     private int id;
     private String titulo;
     private String descricao;
     private LocalDateTime dataCriacao;
     private LocalDateTime dataConclusao;
-    private String status; // PENDENTE, EM_ANDAMENTO, CONCLUIDA
-    private String prioridade; // BAIXA, MEDIA, ALTA
+    private String status; // Ex: "PENDENTE", "EM_ANDAMENTO", "CONCLUIDA"
+    private String prioridade; // Ex: "BAIXA", "MEDIA", "ALTA"
     private int usuarioId;
 
-    // Constructors
+    // Construtor padrão
     public Tarefa() {}
 
+    // Construtor com parâmetros essenciais
     public Tarefa(String titulo, String descricao, String status, String prioridade, int usuarioId) {
         this.titulo = titulo;
         this.descricao = descricao;
@@ -23,8 +28,8 @@ public class Tarefa {
         this.usuarioId = usuarioId;
     }
 
+    // --- Getters e Setters ---
 
-    // Getters and Setters
     public int getId() {
         return id;
     }

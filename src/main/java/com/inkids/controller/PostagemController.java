@@ -1,113 +1,129 @@
-package com.example.rotinainteligente.controller;
+package com.inkids.controller;
 
-import com.example.rotinainteligente.model.Postagem;
-import com.example.rotinainteligente.service.PostagemService;
+import com.inkids.model.Postagem;
+import com.inkids.service.PostagemService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import static spark.Spark.*;
-import java.util.List;
 
+import static spark.Spark.*;
+
+/**
+ * Controller para expor as operações de CRUD da entidade Postagem via API REST.
+ */
 public class PostagemController {
-    private PostagemService postagemService;
-    private ObjectMapper objectMapper;
+
+    private final PostagemService postagemService;
+    private final ObjectMapper objectMapper;
 
     public PostagemController(PostagemService postagemService) {
         this.postagemService = postagemService;
         this.objectMapper = new ObjectMapper();
-        this.objectMapper.registerModule(new JavaTimeModule()); // For LocalDateTime serialization
+        this.objectMapper.registerModule(new JavaTimeModule());
 
         setupRoutes();
     }
 
     private void setupRoutes() {
-        // Create Postagem
+
+        // Endpoint: Criar uma nova postagem (com geração de imagem por IA)
         post("/api/postagens", (request, response) -> {
             response.type("application/json");
-            Postagem postagem = objectMapper.readValue(request.body(), Postagem.class);
-            Postagem novaPostagem = postagemService.criarPostagem(postagem);
-            if (novaPostagem != null) {
-                response.status(201); // Created
-                return objectMapper.writeValueAsString(novaPostagem);
-            } else {
-                response.status(500); // Internal Server Error
-                return "{\"error\":\"Erro ao criar postagem\"}";
+            try {
+                Postagem postagem = objectMapper.readValue(request.body(), Postagem.class);
+                Postagem novaPostagem = postagemService.criarPostagem(postagem);
+
+                if (novaPostagem != null) {
+                    response.status(201); // 201 Created
+                    return objectMapper.writeValueAsString(novaPostagem);
+                } else {
+                    response.status(400); // 400 Bad Request
+                    return "{\"error\":\"Não foi possível criar a postagem. Verifique os dados enviados.\"}";
+                }
+            } catch (Exception e) {
+                response.status(500);
+                return "{\"error\":\"Ocorreu um erro no servidor: " + e.getMessage() + "\"}";
             }
         });
 
-        // Get Postagem by ID
+        // Endpoint: Buscar uma postagem por ID
         get("/api/postagens/:id", (request, response) -> {
             response.type("application/json");
             try {
                 int id = Integer.parseInt(request.params(":id"));
                 Postagem postagem = postagemService.buscarPostagemPorId(id);
+
                 if (postagem != null) {
+                    response.status(200); // 200 OK
                     return objectMapper.writeValueAsString(postagem);
                 } else {
-                    response.status(404); // Not Found
-                    return "{\"error\":\"Postagem não encontrada\"}";
+                    response.status(404); // 404 Not Found
+                    return "{\"error\":\"Postagem não encontrada.\"}";
                 }
             } catch (NumberFormatException e) {
-                response.status(400); // Bad Request
-                return "{\"error\":\"ID de postagem inválido\"}";
+                response.status(400);
+                return "{\"error\":\"ID de postagem inválido.\"}";
             }
         });
 
-        // Get All Postagens
+        // Endpoint: Listar todas as postagens ou as de um usuário específico
         get("/api/postagens", (request, response) -> {
             response.type("application/json");
-            List<Postagem> postagens = postagemService.listarTodasPostagens();
-            return objectMapper.writeValueAsString(postagens);
-        });
-        
-        // Get Postagens by User ID
-        get("/api/postagens/usuario/:usuarioId", (request, response) -> {
-            response.type("application/json");
-             try {
-                int usuarioId = Integer.parseInt(request.params(":usuarioId"));
-                List<Postagem> postagens = postagemService.listarPostagensPorUsuario(usuarioId);
-                return objectMapper.writeValueAsString(postagens);
-            } catch (NumberFormatException e) {
-                response.status(400); // Bad Request
-                return "{\"error\":\"ID de usuário inválido\"}";
+            String usuarioIdParam = request.queryParams("usuarioId");
+
+            if (usuarioIdParam != null && !usuarioIdParam.isEmpty()) {
+                // Lista postagens por usuário
+                try {
+                    int usuarioId = Integer.parseInt(usuarioIdParam);
+                    return objectMapper.writeValueAsString(postagemService.listarPostagensPorUsuario(usuarioId));
+                } catch (NumberFormatException e) {
+                    response.status(400);
+                    return "{\"error\":\"ID de usuário inválido.\"}";
+                }
+            } else {
+                // Lista todas as postagens
+                return objectMapper.writeValueAsString(postagemService.listarTodasPostagens());
             }
         });
 
-
-        // Update Postagem
+        // Endpoint: Atualizar uma postagem
         put("/api/postagens/:id", (request, response) -> {
             response.type("application/json");
             try {
                 int id = Integer.parseInt(request.params(":id"));
                 Postagem postagem = objectMapper.readValue(request.body(), Postagem.class);
-                postagem.setId(id); // Ensure ID from path is used
-                boolean success = postagemService.atualizarPostagem(postagem);
-                if (success) {
-                    return objectMapper.writeValueAsString(postagemService.buscarPostagemPorId(id)); // Return updated
+                postagem.setId(id);
+
+                boolean atualizado = postagemService.atualizarPostagem(postagem);
+                if (atualizado) {
+                    response.status(200);
+                    return objectMapper.writeValueAsString(postagemService.buscarPostagemPorId(id));
                 } else {
-                    response.status(404); // Or 500 if update failed for other reasons
-                    return "{\"error\":\"Erro ao atualizar postagem ou postagem não encontrada\"}";
+                    response.status(404);
+                    return "{\"error\":\"Não foi possível atualizar. Postagem não encontrada.\"}";
                 }
             } catch (NumberFormatException e) {
                 response.status(400);
-                return "{\"error\":\"ID de postagem inválido\"}";
+                return "{\"error\":\"ID de postagem inválido.\"}";
             }
         });
 
-        // Delete Postagem
+        // Endpoint: Deletar uma postagem
         delete("/api/postagens/:id", (request, response) -> {
             response.type("application/json");
             try {
                 int id = Integer.parseInt(request.params(":id"));
-                boolean success = postagemService.deletarPostagem(id);
-                if (success) {
-                    return "{\"message\":\"Postagem deletada com sucesso\"}";
+                boolean deletado = postagemService.deletarPostagem(id);
+
+                if (deletado) {
+                    response.status(200);
+                    return "{\"message\":\"Postagem deletada com sucesso.\"}";
                 } else {
                     response.status(404);
-                    return "{\"error\":\"Erro ao deletar postagem ou postagem não encontrada\"}";
+                    return "{\"error\":\"Não foi possível deletar. Postagem não encontrada.\"}";
                 }
             } catch (NumberFormatException e) {
                 response.status(400);
-                return "{\"error\":\"ID de postagem inválido\"}";
+                return "{\"error\":\"ID de postagem inválido.\"}";
             }
         });
     }

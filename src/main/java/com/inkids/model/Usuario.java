@@ -1,23 +1,28 @@
-package com.example.rotinainteligente.model;
+package com.inkids.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Representa a entidade Usuário.
+ * Contém os dados de um usuário do sistema.
+ */
 public class Usuario {
     private int id;
     private String nome;
     private String email;
-    private String senha; // Store hashed passwords in a real application
+    private String senha; // Em uma aplicação real, armazene apenas o hash da senha
     private LocalDate dataNascimento;
     private String genero;
     private String telefone;
-    private String tipoUsuario; // e.g., "USER", "ADMIN"
+    private String tipoUsuario; // Ex: "USER", "ADMIN"
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Constructors
+    // Construtor padrão
     public Usuario() {}
 
+    // Construtor com parâmetros essenciais
     public Usuario(String nome, String email, String senha, LocalDate dataNascimento, String genero, String telefone, String tipoUsuario) {
         this.nome = nome;
         this.email = email;
@@ -28,8 +33,8 @@ public class Usuario {
         this.tipoUsuario = tipoUsuario;
     }
 
+    // --- Getters e Setters ---
 
-    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -116,7 +121,7 @@ public class Usuario {
                "id=" + id +
                ", nome='" + nome + '\'' +
                ", email='" + email + '\'' +
-               // Do not print password
+               // A senha não deve ser exposta no toString por segurança
                ", dataNascimento=" + dataNascimento +
                ", genero='" + genero + '\'' +
                ", telefone='" + telefone + '\'' +

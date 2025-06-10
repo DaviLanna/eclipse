@@ -1,21 +1,25 @@
-package com.example.rotinainteligente.dao;
+package com.inkids.dao;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Scanner;
 
-public class DAO {
-    // Replace with your actual DB connection details
-    // For H2 in-memory database:
-    private static final String JDBC_URL = "jdbc:h2:mem:rotinadb;DB_CLOSE_DELAY=-1";
+/**
+ * Classe base para Acesso a Dados (Data Access Object).
+ * Gerencia a conexão com o banco de dados e a inicialização do esquema.
+ */
+public abstract class DAO {
+
+    // --- Detalhes da Conexão com o Banco de Dados ---
+    // Usando H2 em memória: volátil, ótimo para desenvolvimento e testes.
+    // Os dados são perdidos quando a aplicação para.
+    private static final String JDBC_URL = "jdbc:h2:mem:inkidsdb;DB_CLOSE_DELAY=-1";
     private static final String JDBC_USER = "sa";
     private static final String JDBC_PASSWORD = "";
-
-    // For PostgreSQL:
-    // private static final String JDBC_URL = "jdbc:postgresql://localhost:5432/yourdatabase";
-    // private static final String JDBC_USER = "youruser";
-    // private static final String JDBC_PASSWORD = "yourpassword";
 
     protected Connection connection;
 
@@ -24,29 +28,25 @@ public class DAO {
     }
 
     /**
-     * Opens a connection to the database.
-     * @return true if connection is successful, false otherwise.
+     * Abre uma conexão com o banco de dados.
+     * @return true se a conexão for bem-sucedida, false caso contrário.
      */
     public boolean conectar() {
         try {
-            // Load the JDBC driver (optional for modern JDBC versions)
-            // Class.forName("org.h2.Driver"); // For H2
-            // Class.forName("org.postgresql.Driver"); // For PostgreSQL
-            connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+            // Garante que a conexão não seja recriada se já estiver aberta
+            if (connection == null || connection.isClosed()) {
+                connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+            }
             return true;
         } catch (SQLException e) {
             System.err.println("Erro ao conectar ao banco de dados: " + e.getMessage());
             return false;
         }
-        // catch (ClassNotFoundException e) {
-        //     System.err.println("Driver JDBC não encontrado: " + e.getMessage());
-        //     return false;
-        // }
     }
 
     /**
-     * Closes the database connection.
-     * @return true if connection is closed successfully or was already null, false if an error occurs.
+     * Fecha a conexão com o banco de dados.
+     * @return true se a conexão for fechada com sucesso ou se já estava nula/fechada, false se ocorrer um erro.
      */
     public boolean close() {
         try {
@@ -61,67 +61,37 @@ public class DAO {
     }
 
     /**
-     * Initializes the database schema by executing the script.sql file.
-     * This is a basic example; consider using a migration tool for production.
+     * Inicializa o banco de dados executando o script SQL de `src/main/resources`.
+     * Este método deve ser chamado uma única vez no início da aplicação.
+     * Em um ambiente de produção, ferramentas como Flyway ou Liquibase são recomendadas.
      */
     public static void initializeDatabase() {
-        // This method would typically read and execute the script.sql content.
-        // For simplicity, we'll directly include table creation if this DAO is used early.
-        // Or, this can be called once at application startup.
-        // For a real app, use Flyway or Liquibase.
-        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
-             Statement stmt = conn.createStatement()) {
+        // Carrega o arquivo script.sql da pasta resources
+        try (InputStream is = DAO.class.getResourceAsStream("/script-bd/script.sql")) {
+            if (is == null) {
+                System.err.println("Erro: script.sql não encontrado nos resources.");
+                return;
+            }
 
-            // Create Usuarios Table
-            stmt.execute("CREATE TABLE IF NOT EXISTS Usuarios (" +
-                         "id INT AUTO_INCREMENT PRIMARY KEY, " + // SERIAL for PostgreSQL
-                         "nome VARCHAR(255) NOT NULL, " +
-                         "email VARCHAR(255) UNIQUE NOT NULL, " +
-                         "senha VARCHAR(255) NOT NULL, " +
-                         "data_nascimento DATE, " +
-                         "genero VARCHAR(50), " +
-                         "telefone VARCHAR(20), " +
-                         "tipo_usuario VARCHAR(50) DEFAULT 'USER', " +
-                         "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                         "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+            // Lê o conteúdo do script
+            Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name()).useDelimiter("\\A");
+            String sqlScript = scanner.hasNext() ? scanner.next() : "";
+            
+            // Conecta ao banco e executa o script
+            try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+                 Statement stmt = conn.createStatement()) {
+                
+                // Executa o script inteiro
+                stmt.execute(sqlScript);
+                System.out.println("Banco de dados inicializado com sucesso.");
 
-            // Create Postagens Table
-            stmt.execute("CREATE TABLE IF NOT EXISTS Postagens (" +
-                         "id INT AUTO_INCREMENT PRIMARY KEY, " + // SERIAL for PostgreSQL
-                         "titulo VARCHAR(255) NOT NULL, " +
-                         "conteudo TEXT NOT NULL, " +
-                         "autor_id INTEGER NOT NULL, " +
-                         "imagem_url VARCHAR(1024), " +
-                         "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                         "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                         "FOREIGN KEY (autor_id) REFERENCES Usuarios(id) ON DELETE CASCADE)");
+            } catch (SQLException e) {
+                System.err.println("Erro ao inicializar o banco de dados: " + e.getMessage());
+                e.printStackTrace();
+            }
 
-            // Create Tarefas Table
-            stmt.execute("CREATE TABLE IF NOT EXISTS Tarefas (" +
-                         "id INT AUTO_INCREMENT PRIMARY KEY, " + // SERIAL for PostgreSQL
-                         "titulo VARCHAR(255) NOT NULL, " +
-                         "descricao TEXT, " +
-                         "data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                         "data_conclusao TIMESTAMP, " +
-                         "status VARCHAR(50) DEFAULT 'PENDENTE', " +
-                         "prioridade VARCHAR(50) DEFAULT 'MEDIA', " +
-                         "usuario_id INTEGER NOT NULL, " +
-                         "FOREIGN KEY (usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE)");
-
-            // Create Contatos Table
-            stmt.execute("CREATE TABLE IF NOT EXISTS Contatos (" +
-                         "id INT AUTO_INCREMENT PRIMARY KEY, " + // SERIAL for PostgreSQL
-                         "nome VARCHAR(255) NOT NULL, " +
-                         "email VARCHAR(255) NOT NULL, " +
-                         "telefone VARCHAR(20), " +
-                         "assunto VARCHAR(255), " +
-                         "mensagem TEXT NOT NULL, " +
-                         "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-
-            System.out.println("Database initialized successfully.");
-
-        } catch (SQLException e) {
-            System.err.println("Error initializing database: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Erro ao ler o arquivo script.sql: " + e.getMessage());
             e.printStackTrace();
         }
     }
