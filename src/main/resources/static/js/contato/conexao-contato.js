@@ -1,18 +1,22 @@
-const contactRouteUrl = 'https://iandn-kids-server.vercel.app/contacts/';
+const postRouteUrl = 'http://localhost:8080/api/contatos';
 
 function createContact(contact, updateFunction) {
-    fetch(contactRouteUrl, {
+    fetch(postRouteUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            Authorization: 'Bearer gPqH84KLJz5SjcP',
         },
         body: JSON.stringify(contact),
     })
-        .then((response) => response.json())
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Falha ao enviar mensagem.');
+        })
         .then((data) => {
             displayMessage(
-                'Solicitação de contato enviada com sucesso',
+                'Mensagem enviada com sucesso!',
                 'success'
             );
 
@@ -22,9 +26,9 @@ function createContact(contact, updateFunction) {
         })
         .catch((error) => {
             console.error(
-                'Erro ao enviar solicitação de contato para a API:',
+                'Erro ao enviar mensagem para a API:',
                 error
             );
-            displayMessage('Erro ao enviar solicitação de contato', 'danger');
+            displayMessage('Erro ao enviar mensagem', 'danger');
         });
 }

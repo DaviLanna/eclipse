@@ -1,14 +1,10 @@
-const taskRouteUrl = 'https://iandn-kids-server.vercel.app/tasks';
+const taskRouteUrl = 'http://localhost:8080/api/tarefas';
 
 function findAllTasks(processData) {
-    fetch(taskRouteUrl, {
-        headers: {
-            Authorization: 'Bearer gPqH84KLJz5SjcP',
-        },
-    })
+    fetch(taskRouteUrl)
         .then((response) => response.json())
         .then((data) => {
-            processData(data.Tasks);
+            processData(data);
         })
         .catch((error) => {
             console.error('Erro ao encontrar tarefas na API:', error);
@@ -17,21 +13,14 @@ function findAllTasks(processData) {
 }
 
 function findTaskById(taskId, processData) {
-    fetch(`${taskRouteUrl}/search/${taskId}`, {
-        headers: {
-            Authorization: 'Bearer gPqH84KLJz5SjcP',
-        },
-    })
+    fetch(`${taskRouteUrl}/${taskId}`)
         .then((response) => response.json())
         .then((data) => {
-            processData(data.Post);
+            processData(data);
         })
         .catch((error) => {
-            console.error(
-                'Erro ao encontrar postagem cadastrada na API:',
-                error
-            );
-            displayMessage('Erro ao ler postagem', 'danger');
+            console.error('Erro ao encontrar tarefa na API:', error);
+            displayMessage('Erro ao ler tarefa', 'danger');
         });
 }
 
@@ -40,14 +29,15 @@ function createTask(task, updateFunction) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            Authorization: 'Bearer gPqH84KLJz5SjcP',
         },
         body: JSON.stringify(task),
     })
-        .then((response) => response.json())
+        .then((response) => {
+            if (response.status === 201) return response.json();
+            throw new Error('Falha ao criar tarefa.');
+        })
         .then((data) => {
             displayMessage('Tarefa criada com sucesso', 'success');
-
             if (updateFunction) {
                 updateFunction();
             }
@@ -61,20 +51,20 @@ function createTask(task, updateFunction) {
 function deleteTask(id, updateFunction) {
     fetch(`${taskRouteUrl}/${id}`, {
         method: 'DELETE',
-        headers: {
-            Authorization: 'Bearer gPqH84KLJz5SjcP',
-        },
     })
-        .then((response) => response.json())
-        .then((data) => {
+    .then((response) => {
+        if (response.ok) {
             displayMessage('Tarefa removida com sucesso', 'primary');
-
             if (updateFunction) {
                 updateFunction();
             }
-        })
-        .catch((error) => {
-            console.error('Erro ao remover tarefa da API:', error);
-            displayMessage('Erro ao remover tarefa', 'danger');
-        });
+            location.reload(); 
+        } else {
+            throw new Error('Falha ao deletar tarefa.');
+        }
+    })
+    .catch((error) => {
+        console.error('Erro ao remover tarefa da API:', error);
+        displayMessage('Erro ao remover tarefa', 'danger');
+    });
 }

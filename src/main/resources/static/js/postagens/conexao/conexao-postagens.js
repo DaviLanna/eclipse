@@ -1,34 +1,26 @@
-const postRouteUrl = 'https://iandn-kids-server.vercel.app/posts';
+const postRouteUrl = 'http://localhost:8080/api/postagens';
 
 function findAllPosts(processData) {
-    fetch(postRouteUrl, {
-        headers: {
-            Authorization: 'Bearer gPqH84KLJz5SjcP',
-        },
-    })
+    fetch(postRouteUrl)
         .then((response) => response.json())
         .then((data) => {
-            processData(data.Posts);
+            processData(data);
         })
         .catch((error) => {
-            console.error('Erro ao ler postagens cadastradas na API:', error);
-            displayMessage('Erro ao ler postagens', 'danger');
+            console.error('Erro ao ler postagens na API:', error);
+            displayMessage('Erro ao carregar postagens', 'danger');
         });
 }
 
 function findPostById(postId, processData) {
-    fetch(`${postRouteUrl}/search/${postId}`, {
-        headers: {
-            Authorization: 'Bearer gPqH84KLJz5SjcP',
-        },
-    })
+    fetch(`${postRouteUrl}/${postId}`)
         .then((response) => response.json())
         .then((data) => {
-            processData(data.Post);
+            processData(data);
         })
         .catch((error) => {
             console.error(
-                'Erro ao encontrar postagem cadastrada na API:',
+                'Erro ao encontrar postagem na API:',
                 error
             );
             displayMessage('Erro ao ler postagem', 'danger');
@@ -40,16 +32,19 @@ function createPost(post, updateFunction) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            Authorization: 'Bearer gPqH84KLJz5SjcP',
         },
         body: JSON.stringify(post),
     })
-        .then((response) => response.json())
+        .then((response) => {
+            if (response.status === 201) {
+                return response.json();
+            }
+            throw new Error('Falha ao criar postagem.');
+        })
         .then((data) => {
-            displayMessage('Postagem criada com sucesso', 'success');
-
+            displayMessage('Postagem criada com sucesso!', 'success');
             if (updateFunction) {
-                updateFunction();
+                updateFunction(data);
             }
         })
         .catch((error) => {
@@ -63,7 +58,6 @@ function updatePost(id, post, updateFunction) {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            Authorization: 'Bearer gPqH84KLJz5SjcP',
         },
         body: JSON.stringify(post),
     })
@@ -82,16 +76,15 @@ function updatePost(id, post, updateFunction) {
 function deletePost(id, updateFunction) {
     fetch(`${postRouteUrl}/${id}`, {
         method: 'DELETE',
-        headers: {
-            Authorization: 'Bearer gPqH84KLJz5SjcP',
-        },
     })
-        .then((response) => response.json())
-        .then((data) => {
-            location.reload();
-
-            if (updateFunction) {
-                updateFunction();
+        .then((response) => {
+            if (response.ok) {
+                location.reload();
+                 if (updateFunction) {
+                    updateFunction();
+                }
+            } else {
+                 throw new Error('Falha ao deletar postagem.');
             }
         })
         .catch((error) => {

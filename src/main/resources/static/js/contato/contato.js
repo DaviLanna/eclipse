@@ -22,24 +22,25 @@ function init() {
             return;
         }
 
-        if (campoMensagem.trim().length < 50) {
+        if (campoMensagem.trim().length < 20) {
             displayMessage(
-                'O texto da postagem deve ter pelo menos 50 caracteres.',
+                'A mensagem deve ter pelo menos 20 caracteres.',
                 'warning'
             );
             return;
         }
 
-        let contatos = {
-            username: campoNome,
+        // Payload ajustado para corresponder ao modelo do backend
+        let contato = {
+            nome: campoNome,
             email: campoEmail,
-            message: campoMensagem,
+            telefone: '', // Campo opcional
+            assunto: 'Contato via Site', // Valor padrão
+            mensagem: campoMensagem,
         };
 
-        createContact(contatos);
-
-        formularioContatos.reset();
-
-        enviarEmailConfirmacaoContato(campoEmail, campoNome, campoMensagem);
+        createContact(contato, () => {
+             formularioContatos.reset();
+        });
     });
 }

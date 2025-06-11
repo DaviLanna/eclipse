@@ -6,44 +6,47 @@ if (!userId) {
     window.location.replace('../usuario/login.html');
 } else {
     modal.style.opacity = 1;
+    init();
+}
 
-    function init() {
-        let formularioTarefa = document.querySelector('form');
-        let btnCadastrarTarefa = document.getElementById('btnSalvarTarefa');
+function init() {
+    let formularioTarefa = document.querySelector('form');
+    let btnCadastrarTarefa = document.getElementById('btnSalvarTarefa');
 
-        btnCadastrarTarefa.addEventListener('click', (e) => {
-            let tituloTarefa = document.getElementById('tituloTarefa').value;
-            let diaDaSemana = document.getElementById('diaDaSemana').value;
-            let horaTarefa = document.getElementById('horaTarefa').value;
+    btnCadastrarTarefa.addEventListener('click', (e) => {
+        e.preventDefault();
 
-            e.preventDefault();
+        let tituloTarefa = document.getElementById('tituloTarefa').value;
+        // Campos de dia e hora são ignorados pois não existem no backend.
+        // let diaDaSemana = document.getElementById('diaDaSemana').value;
+        // let horaTarefa = document.getElementById('horaTarefa').value;
 
-            if (!formularioTarefa.checkValidity()) {
-                displayMessage(
-                    'Preencha o formulário corretamente.',
-                    'warning'
-                );
-                return;
-            }
+        if (!formularioTarefa.checkValidity()) {
+            displayMessage(
+                'Preencha o formulário corretamente.',
+                'warning'
+            );
+            return;
+        }
 
-            if (tituloTarefa.trim() < 5) {
-                displayMessage(
-                    'O título da tarefa deve ter pelo menos 5 caracteres.',
-                    'warning'
-                );
-                return;
-            }
+        if (tituloTarefa.trim().length < 5) {
+            displayMessage(
+                'O título da tarefa deve ter pelo menos 5 caracteres.',
+                'warning'
+            );
+            return;
+        }
 
-            const tarefa = {
-                title: tituloTarefa,
-                weekDay: diaDaSemana,
-                time: horaTarefa,
-                userId: userId
-            };
+        const tarefa = {
+            titulo: tituloTarefa,
+            descricao: "Tarefa da rotina", // Valor Padrão
+            status: "PENDENTE", // Valor Padrão
+            prioridade: "MEDIA", // Valor Padrão
+            usuarioId: parseInt(userId, 10),
+        };
 
-            createTask(tarefa);
-
-            formularioTarefa.reset();
+        createTask(tarefa, () => {
+             formularioTarefa.reset();
         });
-    }
+    });
 }
