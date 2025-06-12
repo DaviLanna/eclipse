@@ -1,4 +1,4 @@
-const taskRouteUrl = 'http://localhost:8080/api/tarefas';
+const taskRouteUrl = 'http://localhost:8081/api/tarefas';
 
 function findAllTasks(processData) {
     fetch(taskRouteUrl)

@@ -1,4 +1,4 @@
-const userRouteUrl = 'http://localhost:8080/api/usuarios';
+const userRouteUrl = 'http://localhost:8081/api/usuarios';
 
 function findAllUsers(processData) {
     fetch(userRouteUrl)

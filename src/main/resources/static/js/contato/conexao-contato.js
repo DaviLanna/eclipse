@@ -1,4 +1,4 @@
-const postRouteUrl = 'http://localhost:8080/api/contatos';
+const postRouteUrl = 'http://localhost:8081/api/contatos';
 
 function createContact(contact, updateFunction) {
     fetch(postRouteUrl, {

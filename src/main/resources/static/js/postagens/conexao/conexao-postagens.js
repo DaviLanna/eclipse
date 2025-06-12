@@ -1,4 +1,4 @@
-const postRouteUrl = 'http://localhost:8080/api/postagens';
+const postRouteUrl = 'http://localhost:8081/api/postagens';
 
 function findAllPosts(processData) {
     fetch(postRouteUrl)
