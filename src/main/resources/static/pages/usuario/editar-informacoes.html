@@ -43,32 +43,20 @@
                     />
                 </a>
                 <nav>
-                    <a
-                        href="../postagens/criar-postagem.html"
-                        onclick="showNavbar()"
-                        >Criar postagem</a
-                    >
-                    <a
-                        href="../postagens/gerenciar-postagens.html"
-                        onclick="showNavbar()"
-                        >Gerenciar postagens</a
-                    >
-                    <a href="../rotina/rotina.html" onclick="showNavbar()"
-                        >Rotina</a
-                    >
-                    <a href="../usuario/editar-informacoes.html" onclick="showNavbar()"
-                        >Perfil <i class="fa-solid fa-user ml"></i></a
-                    >
-                    <a
-                        id="logout"
-                        href="/index.html"
-                        onclick="showNavbar()"
-                        >Sair <i class="fa-solid fa-right-from-bracket ml"></i
-                    ></a>
-                    <button
-                        class="nav_btn nav_close_btn"
-                        onclick="showNavbar()"
-                    >
+                    <a href="/index.html" onclick="showNavbar()">Home</a>
+                    <a href="/pages/postagens/postagens.html" onclick="showNavbar()">Postagens</a>
+                    <a href="/pages/sobre/sobre-nos.html" onclick="showNavbar()">Sobre</a>
+                    <a href="/pages/contato/contato.html" onclick="showNavbar()">Contato</a>
+
+                    <a href="/pages/postagens/criar-postagem.html" onclick="showNavbar()" class="logged-in" style="display: none;">Criar postagem</a>
+                    <a href="/pages/rotina/rotina.html" onclick="showNavbar()" class="logged-in" style="display: none;">Rotina</a>
+                    <a href="/pages/usuario/editar-informacoes.html" onclick="showNavbar()" class="logged-in" style="display: none;">Perfil <i class="fa-solid fa-user ml"></i></a>
+                    <a href="#" id="nav-logout" class="logged-in" style="display: none;">Sair <i class="fa-solid fa-right-from-bracket ml"></i></a>
+
+                    <a href="/pages/usuario/cadastro.html" onclick="showNavbar()" class="logged-out" style="display: none;">Cadastro <i class="fa-solid fa-user ml"></i></a>
+                    <a href="/pages/usuario/login.html" onclick="showNavbar()" class="logged-out" style="display: none;">Login <i class="fa-solid fa-right-to-bracket ml"></i></a>
+                    
+                    <button class="nav_btn nav_close_btn" onclick="showNavbar()">
                         <span class="fa fa-times"></span>
                     </button>
                 </nav>
@@ -201,5 +189,4 @@
         <script src="/js/email/enviar-email-exclusao-conta.js"></script>
         <script src="/js/usuario/conexao/conexao-usuarios.js"></script>
         <script src="/js/usuario/editar-informacoes.js"></script>
-    </body>
-</html>
+    <script src="/js/auth.js"></script></body></html>

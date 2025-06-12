@@ -43,25 +43,18 @@
             </a>
             <nav>
                 <a href="/index.html" onclick="showNavbar()">Home</a>
-                <a
-                    href="/pages/postagens/postagens.html"
-                    onclick="showNavbar()"
-                    >Postagens</a
-                >
-                <a
-                    href="/pages/sobre/sobre-nos.html"
-                    onclick="showNavbar()"
-                    >Sobre</a
-                >
-                <a href="/pages/contato/contato.html" onclick="showNavbar()"
-                    >Contato</a
-                >
-                <a href="/pages/usuario/cadastro.html" onclick="showNavbar()"
-                    >Cadastro <i class="fa-solid fa-user ml"></i
-                ></a>
-                <a href="/pages/usuario/login.html" onclick="showNavbar()"
-                    >Login <i class="fa-solid fa-right-to-bracket ml"></i
-                ></a>
+                <a href="/pages/postagens/postagens.html" onclick="showNavbar()">Postagens</a>
+                <a href="/pages/sobre/sobre-nos.html" onclick="showNavbar()">Sobre</a>
+                <a href="/pages/contato/contato.html" onclick="showNavbar()">Contato</a>
+
+                <a href="/pages/postagens/criar-postagem.html" onclick="showNavbar()" class="logged-in" style="display: none;">Criar postagem</a>
+                <a href="/pages/rotina/rotina.html" onclick="showNavbar()" class="logged-in" style="display: none;">Rotina</a>
+                <a href="/pages/usuario/editar-informacoes.html" onclick="showNavbar()" class="logged-in" style="display: none;">Perfil <i class="fa-solid fa-user ml"></i></a>
+                <a href="#" id="nav-logout" class="logged-in" style="display: none;">Sair <i class="fa-solid fa-right-from-bracket ml"></i></a>
+
+                <a href="/pages/usuario/cadastro.html" onclick="showNavbar()" class="logged-out" style="display: none;">Cadastro <i class="fa-solid fa-user ml"></i></a>
+                <a href="/pages/usuario/login.html" onclick="showNavbar()" class="logged-out" style="display: none;">Login <i class="fa-solid fa-right-to-bracket ml"></i></a>
+                
                 <button class="nav_btn nav_close_btn" onclick="showNavbar()">
                     <span class="fa fa-times"></span>
                 </button>
@@ -146,5 +139,4 @@
         <script src="/js/menu.js"></script>
         <script src="/js/postagens/conexao/conexao-postagens.js"></script>
         <script src="/js/postagens/listar-postagens.js"></script>
-    </body>
-</html>
+    <script src="/js/auth.js"></script></body></html>
