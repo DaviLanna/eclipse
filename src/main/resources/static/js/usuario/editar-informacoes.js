@@ -15,8 +15,8 @@ if (!userId) {
         if (userId) {
             findUserById(userId, (usuario) => {
                 if (usuario) {
-                    document.getElementById('nome').value = usuario.name;
-                    document.getElementById('telefone').value = usuario.phone;
+                    document.getElementById('nome').value = usuario.nome;
+                    document.getElementById('telefone').value = usuario.telefone;
                     document.getElementById('email').value = usuario.email;
                 } else {
                     displayMessage('Usuário não encontrado', 'danger');
@@ -110,8 +110,8 @@ if (!userId) {
 
             formularioEdicaoUsuario.reset();
 
-            document.getElementById('nome').value = usuario.name;
-            document.getElementById('telefone').value = usuario.phone;
+            document.getElementById('nome').value = usuario.nome;
+            document.getElementById('telefone').value = usuario.telefone;
             document.getElementById('email').value = usuario.email;
 
             displayMessage(
