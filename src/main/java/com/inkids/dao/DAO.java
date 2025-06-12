@@ -14,12 +14,13 @@ import java.util.Scanner;
  */
 public abstract class DAO {
 
-    // --- Detalhes da Conexão com o Banco de Dados ---
-    // Usando H2 em memória: volátil, ótimo para desenvolvimento e testes.
-    // Os dados são perdidos quando a aplicação para.
-    private static final String JDBC_URL = "jdbc:h2:mem:inkidsdb;DB_CLOSE_DELAY=-1";
-    private static final String JDBC_USER = "sa";
-    private static final String JDBC_PASSWORD = "";
+    // --- Detalhes da Conexão com o Banco de Dados Supabase (PostgreSQL) ---
+    // As credenciais são lidas das variáveis de ambiente para segurança.
+    private static final String SUPABASE_HOST = System.getenv("SUPABASE_HOST");
+    private static final String SUPABASE_DB = System.getenv("SUPABASE_DB");
+    private static final String SUPABASE_USER = System.getenv("SUPABASE_USER");
+    private static final String SUPABASE_PASSWORD = System.getenv("SUPABASE_PASSWORD");
+    private static final String JDBC_URL = "jdbc:postgresql://" + SUPABASE_HOST + ":" + "5432" + "/" + SUPABASE_DB;
 
     protected Connection connection;
 
@@ -33,13 +34,19 @@ public abstract class DAO {
      */
     public boolean conectar() {
         try {
-            // Garante que a conexão não seja recriada se já estiver aberta
             if (connection == null || connection.isClosed()) {
-                connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+                // Verifica se as variáveis de ambiente foram carregadas
+                if (SUPABASE_HOST == null || SUPABASE_DB == null || SUPABASE_USER == null || SUPABASE_PASSWORD == null) {
+                    System.err.println("Erro: Variáveis de ambiente do Supabase não configuradas.");
+                    System.err.println("Configure SUPABASE_HOST, SUPABASE_DB, SUPABASE_USER e SUPABASE_PASSWORD.");
+                    return false;
+                }
+                connection = DriverManager.getConnection(JDBC_URL, SUPABASE_USER, SUPABASE_PASSWORD);
             }
             return true;
         } catch (SQLException e) {
             System.err.println("Erro ao conectar ao banco de dados: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
@@ -78,7 +85,7 @@ public abstract class DAO {
             String sqlScript = scanner.hasNext() ? scanner.next() : "";
             
             // Conecta ao banco e executa o script
-            try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+            try (Connection conn = DriverManager.getConnection(JDBC_URL, SUPABASE_USER, SUPABASE_PASSWORD);
                  Statement stmt = conn.createStatement()) {
                 
                 // Executa o script inteiro

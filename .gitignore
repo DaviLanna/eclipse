@@ -16,3 +16,6 @@ target/
 # Arquivos de sistema operacional
 .DS_Store
 Thumbs.db
+
+# Arquivos de chave de serviço do Firebase
+serviceAccountKey.json

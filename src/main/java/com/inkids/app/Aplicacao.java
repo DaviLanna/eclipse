@@ -1,41 +1,59 @@
 package com.inkids.app;
 
-import com.inkids.controller.*;
-import com.inkids.dao.DAO;
-import com.inkids.model.Usuario;
-import com.inkids.service.*;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.inkids.controller.ContatoController;
+import com.inkids.controller.PostagemController;
+import com.inkids.controller.TarefaController;
+import com.inkids.controller.UsuarioController;
+import com.inkids.service.ContatoService;
+import com.inkids.service.PostagemService;
+import com.inkids.service.TarefaService;
+import com.inkids.service.UsuarioService;
 
-import java.time.LocalDate;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 import static spark.Spark.*;
 
 /**
- * Classe principal que inicia a aplicação backend.
+ * Classe principal que inicia a aplicação backend com Firebase.
  */
 public class Aplicacao {
 
     public static void main(String[] args) {
-        // 1. Inicializa o esquema do banco de dados na memória.
-        DAO.initializeDatabase();
+        
+        try {
+            // ATENÇÃO: Coloque o arquivo serviceAccountKey.json que você baixou do Firebase
+            // na raiz do seu projeto, ou atualize este caminho.
+            FileInputStream serviceAccount = new FileInputStream("./serviceAccountKey.json");
 
-        // 2. Configura a porta do servidor web.
-        port(8081); // Mantendo a porta 8081 que definimos anteriormente
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .build();
 
-        // --- LINHA ADICIONADA AQUI ---
-        // 3. Configura o servidor para servir os arquivos estáticos (front-end)
-        // O Spark vai procurar os arquivos na pasta 'src/main/resources/static'
+            FirebaseApp.initializeApp(options);
+            
+            System.out.println("Firebase Admin SDK inicializado com sucesso!");
+
+        } catch (IOException e) {
+            System.err.println("ERRO FATAL: Não foi possível inicializar o Firebase.");
+            System.err.println("Verifique se o arquivo 'serviceAccountKey.json' está no local correto.");
+            e.printStackTrace();
+            return; // Encerra a aplicação
+        }
+
+        port(8081);
         staticFiles.location("/static");
-
-        // 4. Configura o CORS (Cross-Origin Resource Sharing).
         enableCORS();
 
-        // 5. Instancia todas as camadas de serviço.
+        // Instancia as camadas de serviço e controllers
         UsuarioService usuarioService = new UsuarioService();
         PostagemService postagemService = new PostagemService();
         TarefaService tarefaService = new TarefaService();
         ContatoService contatoService = new ContatoService();
 
-        // 6. Instancia todos os controllers, passando os serviços correspondentes.
         new UsuarioController(usuarioService);
         new PostagemController(postagemService);
         new TarefaController(tarefaService);
@@ -43,12 +61,8 @@ public class Aplicacao {
 
         System.out.println("\nServidor Java (Spark) iniciado com sucesso!");
         System.out.println("Ouvindo na porta: http://localhost:8081");
-        System.out.println("Front-end e API estão disponíveis no mesmo endereço.");
     }
 
-    /**
-     * Habilita o CORS para permitir requisições de origens diferentes.
-     */
     private static void enableCORS() {
         options("/*", (request, response) -> {
             String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
