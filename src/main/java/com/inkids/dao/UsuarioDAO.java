@@ -108,7 +108,7 @@ public class UsuarioDAO extends DAO {
                     usuario.setId(rs.getInt("id"));
                     usuario.setNome(rs.getString("nome"));
                     usuario.setEmail(rs.getString("email"));
-                    // Não carregar a senha em listagens por segurança
+                    usuario.setSenha(rs.getString("senha")); // LINHA CORRIGIDA
                     Date dataNasc = rs.getDate("data_nascimento");
                     if (dataNasc != null) {
                         usuario.setDataNascimento(dataNasc.toLocalDate());

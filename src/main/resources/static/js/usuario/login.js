@@ -28,14 +28,16 @@ if (userId) {
                 return;
             }
 
+            // Correção 1: usa 'usuario.senha'
             const usuarioEncontrado = db.find(
                 (usuario) =>
                     usuario.email === campoEmail &&
-                    usuario.password === CryptoJS.SHA256(campoSenha).toString()
+                    usuario.senha === CryptoJS.SHA256(campoSenha).toString()
             );
 
             if (usuarioEncontrado) {
-                localStorage.setItem('userId', usuarioEncontrado._id);
+                // Correção 2: usa 'usuarioEncontrado.id'
+                localStorage.setItem('userId', usuarioEncontrado.id);
                 window.location.replace('./editar-informacoes.html');
             } else {
                 displayMessage('Email ou senha incorretos.', 'danger');

@@ -99,12 +99,12 @@ if (userId) {
 
             let encryptedPassword = CryptoJS.SHA256(campoPassword).toString();
 
-            let usuario = {
-                name: campoNome,
-                phone: campoTelefone,
-                email: campoEmail,
-                password: encryptedPassword,
-            };
+			let usuario = {
+			    nome: campoNome,
+			    telefone: campoTelefone,
+			    email: campoEmail,
+			    senha: encryptedPassword,
+			};
 
             createUser(usuario);
 
