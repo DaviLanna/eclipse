@@ -5,57 +5,100 @@
         <meta name="author" content="Equipe I&N KIDS" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Criar Postagem | I&N KIDS</title>
-        <link rel="icon" type="image/svg+xml" href="/assets/images/logo.png" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-        <link rel="stylesheet" href="/assets/css/style.css" />
-        <link rel="stylesheet" href="/assets/css/postagens/criar-postagem.css" />
+        <link rel="icon" type="image/svg+xml" href="/images/logo.png" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="/css/style.css" />
+        <link rel="stylesheet" href="/css/postagens/criar-postagem.css" />
     </head>
     <body>
         <header>
             <a href="/index.html">
-                <img src="/assets/images/logo.png" alt="Logotipo da I&N KIDS"/>
+                <img
+                    src="/images/logo.png"
+                    alt="Logotipo da I&N KIDS"
+                />
             </a>
             <nav>
                 <a href="/index.html" onclick="showNavbar()">Home</a>
-                <a href="/pages/postagens/postagens.html" onclick="showNavbar()">Postagens</a>
-                <a href="/pages/sobre/sobre-nos.html" onclick="showNavbar()">Sobre</a>
-                <a href="/pages/contato/contato.html" onclick="showNavbar()">Contato</a>
-                <a href="/pages/usuario/cadastro.html" onclick="showNavbar()">Cadastro <i class="fa-solid fa-user ml"></i></a>
-                <a href="/pages/usuario/login.html" onclick="showNavbar()">Login <i class="fa-solid fa-right-to-bracket ml"></i></a>
-                <button class="nav_btn nav_close_btn" onclick="showNavbar()"><span class="fa fa-times"></span></button>
+                <a
+                    href="../postagens/postagens.html"
+                    onclick="showNavbar()"
+                    >Postagens</a
+                >
+                <a
+                    href="../sobre/sobre-nos.html"
+                    onclick="showNavbar()"
+                    >Sobre</a
+                >
+                <a href="../contato/contato.html" onclick="showNavbar()"
+                    >Contato</a
+                >
+                <a href="../usuario/cadastro.html" onclick="showNavbar()"
+                    >Cadastro <i class="fa-solid fa-user ml"></i
+                ></a>
+                <a href="../usuario/login.html" onclick="showNavbar()"
+                    >Login <i class="fa-solid fa-right-to-bracket ml"></i
+                ></a>
+                <button class="nav_btn nav_close_btn" onclick="showNavbar()">
+                    <span class="fa fa-times"></span>
+                </button>
             </nav>
-            <button class="nav_btn" onclick="showNavbar()"><span class="fa fa-bars"></span></button>
+            <button class="nav_btn" onclick="showNavbar()">
+                <span class="fa fa-bars"></span>
+            </button>
         </header>
 
-        <main class="container">
-            <h1 class="text-center my-4">Criar Nova Postagem</h1>
-            <form id="postForm" class="mb-5">
-                <div class="mb-3">
-                    <label for="postTitle" class="form-label">Título da Postagem</label>
-                    <input type="text" class="form-control" id="postTitle" required placeholder="Insira um título atraente para sua postagem"/>
+        <main class="container my-5">
+            <h1 class="text-center mb-4">Criar Nova Postagem</h1>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <form id="postForm">
+                        <div id="message" class="mb-3"></div>
+                        <div class="mb-3">
+                            <label for="postTitle" class="form-label">Título da Postagem</label>
+                            <input type="text" class="form-control" id="postTitle" required 
+                                   placeholder="Um título criativo para a sua postagem">
+                            <small class="form-text text-muted">O título será usado para gerar uma imagem de capa por IA.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="postContent" class="form-label">Conteúdo da Postagem</label>
+                            <textarea class="form-control" id="postContent" rows="12" required
+                                      placeholder="Escreva aqui o conteúdo..."></textarea>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="./postagens.html" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary" id="btnCadastrarPostagem">
+                                <i class="fas fa-paper-plane me-2"></i>Publicar
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div class="mb-3">
-                    <label for="postContent" class="form-label">Conteúdo da Postagem</label>
-                    <textarea class="form-control" id="postContent" rows="10" required placeholder="Escreva o conteúdo da sua postagem aqui..."></textarea>
-                </div>
-                <div class="d-flex justify-content-end">
-                    <a href="/pages/postagens/postagens.html" class="btn btn-outline-secondary me-2">Cancelar</a>
-                    <button type="submit" class="btn btn-success">Publicar Postagem</button>
-                </div>
-            </form>
+            </div>
         </main>
+
         <footer>
             <div class="footer-col">
                 <h4><a href="/index.html">I&N KIDS</a></h4>
-                <p>Promovendo uma qualidade de vida superior para seus filhos, com uma rotina saudável e equilibrada.</p>
+                <p>
+                    Promovendo uma qualidade de vida superior para seus filhos,
+                    com uma rotina saudável e equilibrada.
+                </p>
             </div>
             <div class="footer-col">
-                <h4>Conheça nossa plataforma</h4>
+                <h4>Navegação</h4>
                 <ul>
-                    <li><a href="/pages/sobre/sobre-nos.html">Sobre nós</a></li>
-                    <li><a href="/pages/postagens/postagens.html">Ver postagens</a></li>
-                    <li><a href="/pages/contato/contato.html">Entre em contato</a></li>
+                    <li><a href="../sobre/sobre-nos.html">Sobre nós</a></li>
+                    <li><a href="../postagens/postagens.html">Ver postagens</a></li>
+                    <li><a href="../contato/contato.html">Entre em contato</a></li>
                 </ul>
             </div>
             <div class="footer-col">
@@ -68,10 +111,13 @@
                 </div>
             </div>
         </footer>
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="/assets/js/jquery/jquery-3.7.1.min.js"></script>
-        <script src="/assets/js/menu.js"></script>
-        <script src="/assets/js/postagens/image-generator.js"></script>
-        <script src="/assets/js/postagens/criar-postagem.js"></script>
+        <script src="/js/jquery/jquery-3.7.1.min.js"></script>
+        <script src="/js/menu.js"></script>
+        <script src="/js/mensagem-aviso.js"></script>
+        <script src="/js/usuario/conexao/conexao-usuarios.js"></script>
+        <script src="/js/postagens/conexao/conexao-postagens.js"></script>
+        <script src="/js/postagens/criar-postagem.js"></script>
     </body>
 </html>
