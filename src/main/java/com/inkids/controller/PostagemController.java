@@ -80,8 +80,8 @@ public class PostagemController {
                     return "{\"error\":\"ID de usuário inválido.\"}";
                 }
             } else {
-                // Lista todas as postagens
-                return objectMapper.writeValueAsString(postagemService.listarTodasPostagens());
+                // ALTERAÇÃO: Lista todas as postagens usando o novo método com DTOs.
+                return objectMapper.writeValueAsString(postagemService.listarTodasPostagensDTO());
             }
         });
 

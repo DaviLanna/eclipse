@@ -59,3 +59,5 @@ CREATE TABLE IF NOT EXISTS Contatos (
     mensagem TEXT NOT NULL,                     -- A mensagem em si
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Data de recebimento da mensagem
 );
+
+INSERT INTO Usuarios (nome, email, senha, tipo_usuario) VALUES ('Admin InKids', 'admin@inkids.com', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', 'ADMIN');

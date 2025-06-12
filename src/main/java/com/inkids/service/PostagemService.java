@@ -1,8 +1,12 @@
 package com.inkids.service;
 
 import com.inkids.dao.PostagemDAO;
+import com.inkids.dao.UsuarioDAO; // Importar o UsuarioDAO
+import com.inkids.dto.PostagemDTO; // Importar o novo DTO
 import com.inkids.model.Postagem;
+import com.inkids.model.Usuario;   // Importar o modelo Usuario
 
+import java.util.ArrayList; // Importar ArrayList
 import java.util.List;
 
 /**
@@ -12,10 +16,45 @@ import java.util.List;
 public class PostagemService {
     private final PostagemDAO postagemDAO;
     private final GeminiImageService geminiImageService;
+    private final UsuarioDAO usuarioDAO; // Adicionar para buscar o nome do autor
 
     public PostagemService() {
         this.postagemDAO = new PostagemDAO();
         this.geminiImageService = new GeminiImageService();
+        this.usuarioDAO = new UsuarioDAO(); // Instanciar o UsuarioDAO
+    }
+    
+    /**
+     * NOVO MÉTODO: Lista todas as postagens e as converte para o formato DTO.
+     * Este método busca os dados brutos e os enriquece com o nome do autor.
+     * @return Uma lista de objetos PostagemDTO, pronta para ser enviada ao frontend.
+     */
+    public List<PostagemDTO> listarTodasPostagensDTO() {
+        List<Postagem> postagens = postagemDAO.getAll();
+        List<PostagemDTO> dtos = new ArrayList<>();
+
+        for (Postagem post : postagens) {
+            PostagemDTO dto = new PostagemDTO();
+            
+            // Mapeia os campos da entidade para o DTO
+            dto.setId(post.getId());
+            dto.setTitle(post.getTitulo());     // De "titulo" para "title"
+            dto.setContent(post.getConteudo());
+            dto.setImageUrl(post.getImagemUrl());
+            dto.setCreatedAt(post.getCreatedAt());
+            dto.setUpdatedAt(post.getUpdatedAt());
+
+            // Busca o usuário autor pelo ID para obter o nome
+            Usuario autor = usuarioDAO.get(post.getAutorId());
+            if (autor != null) {
+                dto.setAuthor(autor.getNome()); // Define o nome do autor
+            } else {
+                dto.setAuthor("Autor Desconhecido"); // Fallback
+            }
+            
+            dtos.add(dto);
+        }
+        return dtos;
     }
 
     /**
