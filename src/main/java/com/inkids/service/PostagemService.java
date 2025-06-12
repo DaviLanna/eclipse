@@ -132,4 +132,36 @@ public class PostagemService {
     public boolean deletarPostagem(int id) {
         return postagemDAO.delete(id);
     }
+
+    /**
+     * NOVO MÉTODO: Busca uma postagem por ID e a converte para o formato DTO.
+     * @param id O ID da postagem.
+     * @return Um objeto PostagemDTO, ou null se a postagem não for encontrada.
+     */
+    public PostagemDTO buscarPostagemPorIdDTO(int id) {
+        Postagem postagem = postagemDAO.get(id);
+        if (postagem == null) {
+            return null; // Retorna nulo se a postagem não existir
+        }
+
+        PostagemDTO dto = new PostagemDTO();
+
+        // Mapeia os campos da entidade para o DTO
+        dto.setId(postagem.getId());
+        dto.setTitle(postagem.getTitulo());
+        dto.setContent(postagem.getConteudo());
+        dto.setImageUrl(postagem.getImagemUrl());
+        dto.setCreatedAt(postagem.getCreatedAt());
+        dto.setUpdatedAt(postagem.getUpdatedAt());
+
+        // Busca o usuário autor pelo ID para obter o nome
+        Usuario autor = usuarioDAO.get(postagem.getAutorId());
+        if (autor != null) {
+            dto.setAuthor(autor.getNome());
+        } else {
+            dto.setAuthor("Autor Desconhecido");
+        }
+
+        return dto;
+    }
 }

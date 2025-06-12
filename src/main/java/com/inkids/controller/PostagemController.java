@@ -50,11 +50,12 @@ public class PostagemController {
             response.type("application/json");
             try {
                 int id = Integer.parseInt(request.params(":id"));
-                Postagem postagem = postagemService.buscarPostagemPorId(id);
+                // Chama o novo método que retorna o DTO
+                Object postagemDto = postagemService.buscarPostagemPorIdDTO(id);
 
-                if (postagem != null) {
+                if (postagemDto != null) {
                     response.status(200); // 200 OK
-                    return objectMapper.writeValueAsString(postagem);
+                    return objectMapper.writeValueAsString(postagemDto);
                 } else {
                     response.status(404); // 404 Not Found
                     return "{\"error\":\"Postagem não encontrada.\"}";
