@@ -20,13 +20,20 @@ async function handlePostSubmit(event) {
 
     const titleInput = document.getElementById('postTitle');
     const contentInput = document.getElementById('postContent');
+    const selectedImageUrlInput = document.getElementById('selectedImageUrl');
     const submitBtn = document.getElementById('btnCadastrarPostagem');
 
     const title = titleInput.value.trim();
     const content = contentInput.value.trim();
+    const imageUrl = selectedImageUrlInput.value;
 
     if (title.length < 5 || content.length < 20) {
         displayMessage('O título deve ter no mínimo 5 caracteres e o conteúdo no mínimo 20.', 'warning');
+        return;
+    }
+
+    if (!imageUrl) {
+        displayMessage('Por favor, gere e selecione uma imagem para a postagem.', 'warning');
         return;
     }
 
@@ -34,12 +41,13 @@ async function handlePostSubmit(event) {
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Publicando...';
 
     try {
-        const userId = parseInt(localStorage.getItem('userId'), 10);
+        const autorId = localStorage.getItem('userId');
         
         const postData = {
             titulo: title,
             conteudo: content,
-            autorId: userId,
+            autorId: autorId, 
+            imagemUrl: imageUrl,
         };
 
         createPost(postData, (novaPostagem) => {

@@ -61,6 +61,27 @@
                             <small class="form-text text-muted">O título será usado para gerar uma imagem de capa por IA.</small>
                         </div>
 
+                        <div class="mb-3 text-center">
+                            <button type="button" class="btn btn-info text-white" id="generateImagesBtn">
+                                <i class="fas fa-magic me-2"></i>Gerar Imagens com IA
+                            </button>
+                        </div>
+
+                        <div id="imageGenerationContainer" class="mb-4">
+                            <div id="loadingImages" class="loading-container d-none">
+                                <div class="spinner-border text-primary" role="status"></div>
+                                <p class="mt-2">Gerando imagens, por favor aguarde...</p>
+                            </div>
+                            <div id="errorContainer" class="alert alert-danger d-none">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <span id="errorMessage"></span>
+                            </div>
+                            <div id="generatedImagesContainer" class="row d-none">
+                                </div>
+                        </div>
+                        
+                        <input type="hidden" id="selectedImageUrl" name="imagemUrl">
+
                         <div class="mb-3">
                             <label for="postContent" class="form-label">Conteúdo da Postagem</label>
                             <textarea class="form-control" id="postContent" rows="12" required
@@ -111,5 +132,8 @@
         <script src="/js/mensagem-aviso.js"></script>
         <script src="/js/usuario/conexao/conexao-usuarios.js"></script>
         <script src="/js/postagens/conexao/conexao-postagens.js"></script>
+        <script src="/js/postagens/image-handler.js"></script> 
         <script src="/js/postagens/criar-postagem.js"></script>
-    <script src="/js/auth.js"></script></body></html>
+        <script src="/js/auth.js"></script>
+    </body>
+</html>

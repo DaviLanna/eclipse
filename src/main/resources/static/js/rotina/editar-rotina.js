@@ -1,155 +1,99 @@
 let userId = localStorage.getItem('userId');
 let modal = document.getElementById('modal');
+const diasDaSemana = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
 
 if (!userId) {
     alert('Acesso restrito. Por favor, faça login para continuar.');
     window.location.replace('../usuario/login.html');
 } else {
+    // Chamada inicial
+    init();
+}
+
+function init() {
     modal.style.opacity = 1;
-
-    var db = [];
-
     findAllTasks((data) => {
         db = data;
         listTarefas();
     });
+}
 
-    function listTarefas() {
-        const tarefasPeloUserId = db.filter((task) => {
-            return task.userId == userId;
-        });
+function listTarefas() {
+    const tarefasPeloUserId = db.filter((task) => {
+        return task.usuarioId == userId;
+    });
 
-        const grupoHorastarefas = ordenaArrayTarefas(tarefasPeloUserId);
+    const grupoHorasTarefas = ordenaEAgrupaTarefas(tarefasPeloUserId);
+    let tableTarefas = document.getElementById('tableTarefas');
+    
+    while (tableTarefas.rows.length > 1) {
+        tableTarefas.deleteRow(1);
+    }
 
-        let tableTarefas = document.getElementById('tableTarefas');
+    grupoHorasTarefas.forEach((tarefasDoMesmoHorario) => {
+        const linha = tableTarefas.insertRow();
+        linha.insertCell().innerHTML = tarefasDoMesmoHorario[0].horario;
 
-        grupoHorastarefas.map((tarefas, index_array) => {
-            const linhatarefas = tableTarefas.insertRow();
-            const horaCell = linhatarefas.insertCell();
-            horaCell.className = 'infoRotina';
-            horaCell.innerHTML = tarefas[0].time;
-            for (let index = 0; index < 7; index++) {
-                const tarefa = tarefas.find((t) => t.weekDay === index);
-
-                const adicionarCell = linhatarefas.insertCell(index + 1);
-                adicionarCell.className = 'tarefas';
-
-                if (!tarefa) {
-                    adicionarCell.innerHTML += `<p></p>`;
-                    continue;
-                }
-
-                adicionarCell.innerHTML += `
-                    <button class="excluir" id=${tarefa._id}>
+        for (const dia of diasDaSemana) {
+            const tarefaDoDia = tarefasDoMesmoHorario.find(t => t.diaDaSemana === dia);
+            const celula = linha.insertCell();
+            celula.className = 'tarefas';
+            if (tarefaDoDia) {
+                celula.innerHTML = `
+                    <button class="excluir" data-id="${tarefaDoDia.id}">
                          <i class="fa-solid fa-trash" style="color: #d80032;"></i>
                     </button>
-                    <p>${tarefa.title}</p>
-               `;
-            }
-        });
-
-        const linhaButtons = tableTarefas.insertRow();
-
-        const buttonCell = linhaButtons.insertCell(0);
-        buttonCell.className = 'infoRotina';
-
-        for (let i = 1; i <= 7; i++) {
-            const adicionarCell = linhaButtons.insertCell(i);
-            adicionarCell.className = 'adicionar';
-            adicionarCell.innerHTML = `
-                <button onclick="window.location.href = './criar-tarefa.html'">
-                    <img src="../../assets/images/rotina/botao.png" alt="botão para adicionar tarefa">
-                </button>
-            `;
-        }
-        init();
-    }
-
-    function ordenaArrayTarefas(db) {
-        const diasSemana = [
-            'Domingo',
-            'Segunda-feira',
-            'Terça-feira',
-            'Quarta-feira',
-            'Quinta-feira',
-            'Sexta-feira',
-            'Sabado',
-        ];
-
-        const tarefasIndexDiaSemana = db.map((tarefa) => {
-            return {
-                _id: tarefa._id,
-                title: tarefa.title,
-                weekDay: diasSemana.indexOf(tarefa.weekDay),
-                time: tarefa.time,
-            };
-        });
-
-        const tarefasOrdenadas = tarefasIndexDiaSemana.sort(
-            (anterior, posterior) => {
-                const horanterior = new Date(`1970-01-01T${anterior.time}`);
-                const horaposterior = new Date(`1970-01-01T${posterior.time}`);
-
-                if (horanterior < horaposterior) {
-                    return -1;
-                } else if (horanterior > horaposterior) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            }
-        );
-
-        const gruposHoras = [];
-        let grupoAtual = [];
-        let horaAtual = null;
-
-        for (const tarefa of tarefasOrdenadas) {
-            if (horaAtual === null || tarefa.time === horaAtual) {
-                grupoAtual.push(tarefa);
+                    <p>${tarefaDoDia.titulo}</p>`;
             } else {
-                gruposHoras.push(grupoAtual);
-                grupoAtual = [tarefa];
+                celula.innerHTML = `<p></p>`;
             }
-            horaAtual = tarefa.time;
         }
+    });
 
-        if (grupoAtual.length > 0) {
-            gruposHoras.push(grupoAtual);
+    const linhaButtons = tableTarefas.insertRow();
+    linhaButtons.insertCell(); // Célula vazia para a coluna de horário
+
+    for (let i = 0; i < 7; i++) {
+        const adicionarCell = linhaButtons.insertCell();
+        adicionarCell.className = 'adicionar';
+        // CORREÇÃO do ícone
+        adicionarCell.innerHTML = `
+            <button onclick="window.location.href = './criar-tarefa.html'">
+                <i class="fa-solid fa-plus-circle fa-2x" style="color: var(--orange-color); cursor: pointer;"></i>
+            </button>
+        `;
+    }
+    addDeleteListeners();
+}
+
+function ordenaEAgrupaTarefas(tarefas) {
+    if (!tarefas || tarefas.length === 0) return [];
+    
+    const tarefasAgrupadas = tarefas.reduce((acc, tarefa) => {
+        if (!acc[tarefa.horario]) {
+            acc[tarefa.horario] = [];
         }
+        acc[tarefa.horario].push(tarefa);
+        return acc;
+    }, {});
+    
+    const arrayDeGrupos = Object.values(tarefasAgrupadas);
+    arrayDeGrupos.sort((a, b) => a[0].horario.localeCompare(b[0].horario));
+    
+    return arrayDeGrupos;
+}
 
-        gruposHoras.forEach((grupo) => {
-            grupo.sort((tarefa1, tarefa2) => {
-                const diaSemana1 = tarefa1.weekDay;
-                const diaSemana2 = tarefa2.weekDay;
-
-                if (diaSemana1 < diaSemana2) {
-                    return -1;
-                } else if (diaSemana1 > diaSemana2) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            });
+function addDeleteListeners() {
+    document.querySelectorAll('.excluir').forEach(button => {
+        button.addEventListener('click', function () {
+            const taskId = this.dataset.id;
+            if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
+                deleteTask(taskId, () => {
+                    db = db.filter(task => task.id !== taskId);
+                    listTarefas();
+                    displayMessage('Tarefa removida com sucesso.', 'success');
+                });
+            }
         });
-
-        return gruposHoras;
-    }
-
-    function init() {
-        let btnDelete = document.getElementsByClassName('excluir');
-
-        for (let i = 0; i < btnDelete.length; i++) {
-            btnDelete[i].addEventListener('click', function () {
-                let button = this;
-                let taskId = button.id;
-
-                deleteTask(taskId);
-
-                setTimeout(() => {
-                    location.reload();
-                }, 5000);
-            });
-        }
-    }
+    });
 }

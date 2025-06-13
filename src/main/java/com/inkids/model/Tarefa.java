@@ -10,9 +10,15 @@ public class Tarefa {
     private String status;
     private String prioridade;
     private String usuarioId;
+
+    // CAMPOS PARA ROTINA
+    private String diaDaSemana;
+    private String horario;
+
     @ServerTimestamp private Date dataCriacao;
     private Date dataConclusao;
     public Tarefa() {}
+    
     // Getters e Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -30,4 +36,10 @@ public class Tarefa {
     public void setDataCriacao(Date dataCriacao) { this.dataCriacao = dataCriacao; }
     public Date getDataConclusao() { return dataConclusao; }
     public void setDataConclusao(Date dataConclusao) { this.dataConclusao = dataConclusao; }
+
+    // GETTERS E SETTERS PARA ROTINA
+    public String getDiaDaSemana() { return diaDaSemana; }
+    public void setDiaDaSemana(String diaDaSemana) { this.diaDaSemana = diaDaSemana; }
+    public String getHorario() { return horario; }
+    public void setHorario(String horario) { this.horario = horario; }
 }

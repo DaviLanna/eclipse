@@ -7,7 +7,7 @@ import java.util.Date;
  * Modelo de Usuário para o Firestore.
  */
 public class Usuario {
-    private String id; // MUDANÇA: de int para String
+    private String id;
     private String nome;
     private String email;
     private String senha;

@@ -12,12 +12,12 @@ import java.util.stream.Collectors;
 public class PostagemService {
     private final PostagemDAO postagemDAO = new PostagemDAO();
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
-    private final GeminiImageService geminiImageService = new GeminiImageService();
+    // TROCADO: Agora instancia e usa o serviço da Azure
+    private final AzureImageService azureImageService = new AzureImageService();
 
     public List<PostagemDTO> listarTodasPostagensDTO() {
         try {
             List<Postagem> postagens = postagemDAO.getAll();
-            // Converte cada Postagem para PostagemDTO
             return postagens.stream().map(this::convertToDto).collect(Collectors.toList());
         } catch (Exception e) {
             e.printStackTrace();
@@ -27,17 +27,19 @@ public class PostagemService {
 
     public Postagem criarPostagem(Postagem postagem) {
         try {
-            if (postagem == null || postagem.getTitulo() == null || postagem.getTitulo().trim().isEmpty()) {
+            if (postagem == null || postagem.getTitulo() == null || postagem.getTitulo().trim().isEmpty() || postagem.getImagemUrl() == null || postagem.getImagemUrl().trim().isEmpty()) {
                 return null;
             }
-            // Gera a imagem antes de salvar
-            String imageUrl = geminiImageService.generateImageUrl(postagem.getTitulo());
-            postagem.setImagemUrl(imageUrl);
             return postagemDAO.save(postagem);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+    }
+    
+    public List<String> gerarImagensPeloTitulo(String titulo, int quantidade) {
+        // TROCADO: Agora chama o método do serviço da Azure
+        return azureImageService.generateImageUrls(titulo, quantidade);
     }
 
     public PostagemDTO buscarPostagemPorIdDTO(String id) {
@@ -73,7 +75,6 @@ public class PostagemService {
         return postagemDAO.delete(id);
     }
 
-    // Método auxiliar para converter a entidade Postagem em um DTO
     private PostagemDTO convertToDto(Postagem post) {
         PostagemDTO dto = new PostagemDTO();
         dto.setId(post.getId());
@@ -83,7 +84,6 @@ public class PostagemService {
         dto.setCreatedAt(post.getCreatedAt());
         dto.setUpdatedAt(post.getUpdatedAt());
         try {
-            // Busca o nome do autor usando o autorId
             Usuario autor = usuarioDAO.get(post.getAutorId());
             dto.setAuthor(autor != null ? autor.getNome() : "Autor Desconhecido");
         } catch (Exception e) {
